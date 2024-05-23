@@ -2,11 +2,6 @@
 # Prepare the script by running: chmod +x linny.sh
 # Usage: ./linny.sh
 
-# Check sudo rights
-echo "\e[31mSudo rights:\e[0m"
-sudo -l
-echo
-
 # Check for kernel version and search against Searchsploit database
 echo "\e[31mKernel version:\e[0m"
 echo "\e[31mTo test if a kernel exploit works you must know OS, architecture and kernel version.\e[0m"
