@@ -26,7 +26,7 @@ echo ""
 ## Grepping for easy passwords
 echo "Grepping for passwords..."
 echo ""
-watch -n 1 "ps -aux | grep pass" #Checking processes for credentials
+watch -n 1 "ps -aux | grep pass"
 echo ""
 
 ## Sensitive Information
