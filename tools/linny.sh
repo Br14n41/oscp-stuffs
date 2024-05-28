@@ -1,8 +1,8 @@
 ## Collects basic system information 
 ## Kernel Information
-echo "Kernel version: $(uname -r)"
+echo "Kernel version: $(user -r)"
 echo "Searchsploit database:"
-searchsploit $(uname -a | awk '{print $1, $3}')
+searchsploit $(user -a | awk '{print $1, $3}')
 echo
 
 ## Writable

