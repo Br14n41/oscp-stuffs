@@ -2,23 +2,6 @@
 
 Notes from preparation for OSCP exam. 
 
-# GitHub recon
-
-- You need to find the `.git` files on the target machine.
-
-```bash
-# Log information of the current repository.
-git log
-
-# This will display the log of the stuff happened, like commit history which is very useful
-git show <commit-id>
-
-# This shows the commit information and the newly added stuff.
-```
-
-- If you identify `.git` active on the website. Use https://github.com/arthaud/git-dumper now it downloads all the files and saves it locally. Perform the same above commands and escalate.
-- [https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets](https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets)
-
 # Connecting to RDP
 
 ```bash
@@ -531,6 +514,23 @@ curl -i http://192.168.50.16:5002/users/v1
 - If there is any Input field check for **Remote Code execution** or **SQL Injection**
 - Check the URL, whether we can leverage **Local or Remote File Inclusion**.
 - Also check if there’s any file upload utility(also obtain the location it’s getting reflected)
+
+## GitHub
+
+You need to find the `.git` files on the target machine.
+
+```bash
+# Log information of the current repository.
+git log
+
+# This will display the log of the stuff happened, like commit history which is very useful
+git show <commit-id>
+
+# This shows the commit information and the newly added stuff.
+```
+
+- If you identify `.git` active on the website. Use https://github.com/arthaud/git-dumper now it downloads all the files and saves it locally. Perform the same above commands and escalate.
+- [https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets](https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets)
 
 ## Wordpress
 
