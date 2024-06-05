@@ -2,16 +2,6 @@
 
 Notes from preparation for OSCP exam. 
 
-# Connecting to RDP
-
-```bash
-xfreerdp /u:user /p:'password' /v:$target
-xfreerdp /d:domain /u:user /p:'password' /v:$target
-
-# try this option if normal login doesn't work
-xfreerdp /u:user /p:'password' /v:$target +clipboard /cert:ignore
-```
-
 # File Transfers
 
 ## Windows to Kali
@@ -146,7 +136,7 @@ sudo echo "socks5 127.0.0.1 9998" >> /etc/proxychains4.conf
 proxychains nmap -vvv -sT --top-ports=20 -Pn -n INTERNAL
 ```
 
-# Dealing with Passwords
+# Getting the most from discovered passwords
 
 ## When you suspect brute forcing or have cracked some hashes:
 
@@ -704,10 +694,20 @@ lsaenumsid
 
 ---
 
+# RDP
+
+```bash
+xfreerdp /u:user /p:'password' /v:$target
+xfreerdp /d:domain /u:user /p:'password' /v:$target
+
+# try this option if normal login doesn't work
+xfreerdp /u:user /p:'password' /v:$target +clipboard /cert:ignore
+```
+
 # Web Attacks
 
 <aside>
-💡 Cross-platform PHP revershell: [https://github.com/ivan-sincek/php-reverse-shell/blob/master/src/reverse/php_reverse_shell.php](https://github.com/ivan-sincek/php-reverse-shell/blob/master/src/reverse/php_reverse_shell.php)
+Cross-platform PHP revershell: [https://github.com/ivan-sincek/php-reverse-shell/blob/master/src/reverse/php_reverse_shell.php](https://github.com/ivan-sincek/php-reverse-shell/blob/master/src/reverse/php_reverse_shell.php)
 </aside>
 
 ## Directory Traversal
