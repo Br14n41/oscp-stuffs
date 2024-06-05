@@ -368,7 +368,7 @@ nmap -p21 --script=<name> IP
 hydra -L users.txt -P passwords.txt IP ftp 
 
 # Uses a combined username:password list (from Proving Grounds)
-hydra -v -C /usr/share/seclists/SecLists-master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt -f IP ftp
+hydra -v -C /usr/share/seclists/seclists-master/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt -f IP ftp
 
 # check for vulnerabilities associated with the version identified.
 ```
@@ -464,32 +464,35 @@ mget *
 ## Basic HTTP/S Enum
 ```bash
 gobuster dir -u $URL -w /usr/share/wordlists/dirb/big.txt
-gobuster dir -u $URL -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30
-gobuster dir -u $URL -w /opt/SecLists/Discovery/Web-Content/raft-medium-files.txt -k -t 30
+gobuster dir -u $URL -w /opt/seclists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30
+gobuster dir -u $URL -w /opt/seclists/Discovery/Web-Content/raft-medium-files.txt -k -t 30
 ffuf -c -ic -w /usr/share/wordlists/dirb/big.txt -u $URL
 ```
 
 ## Advanced file/directory fuzzing
 ```bash
-Authenticated Directory Fuzzing:
-ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-medium-directories.txt -fc 404 -d "SESSIONID=value" "$URL"
+# Authenticated Directory Fuzzing:
+ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/raft-medium-directories.txt -fc 404 -d "SESSIONID=value" "$URL"
 
-Authenticated File Fuzzing:
-ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-medium-files.txt -fc 404 -d "SESSIONID=value" "$URL"
+# Authenticated File Fuzzing:
+ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/raft-medium-files.txt -fc 404 -d "SESSIONID=value" "$URL"
 
-Fuzzing Directories:
-ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-large-directories.txt -fc 404 "$URL"
+# Fuzzing Directories:
+ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/raft-large-directories.txt -fc 404 "$URL"
 ffuf -c -ic -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -fc 404 "$URL"
 ffuf -c -ic -w /usr/share/wordlists/dirbuster/big.txt -fc 404 "$URL"
 
-Fuzzing files:
-ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-large-files.txt -fc 404 "$URL"
+# Fuzzing files:
+ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/raft-large-files.txt -fc 404 "$URL"
 
-Fuzzing files with large words:
-ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-large-words.txt -fc 404 "$URL"
+# Fuzzing files with large words:
+ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/raft-large-words.txt -fc 404 "$URL"
 
-Fuzzing for usernames:
-ffuf -c -ic -w /opt/Seclists/Usernames/top-usernames-shortlist.txt -fc 404,403 "$URL"
+# Fuzzing for usernames:
+ffuf -c -ic -w /opt/seclists/Usernames/top-usernames-shortlist.txt -fc 404,403 "$URL"
+
+# Fuzzing for parameter existence:
+ffuf -c -ic -w /opt/seclists/Discovery/Web-Content/burp-parameter-names.txt "$URL"
 
 ```
 
@@ -576,7 +579,7 @@ https://sirensecurity.io/blog/common/
 
 # DNS enumeration
 
-- Better use `Seclists` wordlists for better enumeration. [https://github.com/danielmiessler/SecLists/tree/master/Discovery/DNS](https://github.com/danielmiessler/SecLists/tree/master/Discovery/DNS)
+- Better use `seclists` wordlists for better enumeration. [https://github.com/danielmiessler/seclists/tree/master/Discovery/DNS](https://github.com/danielmiessler/seclists/tree/master/Discovery/DNS)
 
 ```bash
 host www.megacorpone.com
