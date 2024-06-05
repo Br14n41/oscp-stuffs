@@ -325,17 +325,14 @@ sudo ip r add <subnet> dev ligolo
 
 ```bash
 # use -Pn option if you're getting nothing in scan
-# Basic scan
-nmap -sC -sV IP -v
+nmap -p- -sT -sV -A $IP
+nmap -p- -sC -sV $IP --open
+nmap -p- --script=vuln $target
 
 # complete scan
 nmap -T4 -A -p- IP -v 
 
-# running vuln category scripts
-sudo nmap -sV -p 443 --script "vuln" IP
-
-# automated with bashmap
-# https://github.com/Br14n41/bashmap
+# automated with bashmap (https://github.com/Br14n41/bashmap)
 ./bashmap.sh ips.txt
 
 # NSE
@@ -459,17 +456,51 @@ mget *
 
 - View source-code and identify any hidden content. If some image looks suspicious download and try to find hidden data in it.
 - Identify the version or CMS and check for active exploits. This can be done using Nmap and Wappalyzer.
-- check /robots.txt folder
-- Look for the hostname and add the relevant one to `/etc/hosts` file.
-- Directory and file discovery - Obtain any hidden files which may contain juicy information
+- Fuzzing files/directories
+- Check /robots.txt, .DS_store, .git, .svn
+- Nikto
+- If hostname discovered, add to `/etc/hosts` file.
 
+## Basic HTTP/S Enum
 ```bash
-dirbuster
-gobuster dir -u http://example.com -w /path/to/wordlist.txt
-ffuf -w /usr/share/wordlists/dirb/big.txt -u http://example.com/FUZZ
+gobuster dir -u $URL -w /usr/share/wordlists/dirb/big.txt
+gobuster dir -u $URL -w /opt/SecLists/Discovery/Web-Content/raft-medium-directories.txt -k -t 30
+gobuster dir -u $URL -w /opt/SecLists/Discovery/Web-Content/raft-medium-files.txt -k -t 30
+ffuf -c -ic -w /usr/share/wordlists/dirb/big.txt -u $URL
 ```
 
-- Vulnerability Scanning using nikto: `nikto -h <url>`
+## Advanced file/directory fuzzing
+```bash
+Authenticated Directory Fuzzing:
+ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-medium-directories.txt -fc 404 -d "SESSIONID=value" "$URL"
+
+Authenticated File Fuzzing:
+ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-medium-files.txt -fc 404 -d "SESSIONID=value" "$URL"
+
+Fuzzing Directories:
+ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-large-directories.txt -fc 404 "$URL"
+ffuf -c -ic -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -fc 404 "$URL"
+ffuf -c -ic -w /usr/share/wordlists/dirbuster/big.txt -fc 404 "$URL"
+
+Fuzzing files:
+ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-large-files.txt -fc 404 "$URL"
+
+Fuzzing files with large words:
+ffuf -c -ic -w /opt/Seclists/Discovery/Web-Content/raft-large-words.txt -fc 404 "$URL"
+
+Fuzzing for usernames:
+ffuf -c -ic -w /opt/Seclists/Usernames/top-usernames-shortlist.txt -fc 404,403 "$URL"
+
+```
+
+## Nikto
+```bash
+# Basic
+nikto -h http://$target/
+
+# with SSL and Evasion
+nikto --host $IP -ssl -evasion 1
+```
 - `HTTPS`SSL certificate inspection, this may reveal information like subdomains, usernames…etc
 - Default credentials, Identify the CMS or service and check for default credentials and test them out.
 - Bruteforce
@@ -512,8 +543,16 @@ wpscan --url http://alvida-eatery.org/ --api-token NjnoSGZkuWDve0fDjmmnUNb1ZnkRw
 
 # Accessing Wordpress shell
 http://<DOMAIN>/retro/wp-admin/theme-editor.php?file=404.php&theme=90s-retro
-
 http://<DOMAIN>/retro/wp-content/themes/90s-retro/404.php
+
+# WPScan and SSL
+wpscan --url $URL --disable-tls-checks --enumerate p --enumerate t --enumerate u
+
+# WPScan Brute forcing
+wpscan --url $URL --disable-tls-checks -U users -P /usr/share/wordlists/rockyou.txt
+
+# Aggressive Plugin Detection
+wpscan --url $URL --enumerate p --plugins-detection aggressive
 ```
 
 ## Drupal
@@ -529,6 +568,11 @@ droopescan scan joomla --url http://site
 # https://github.com/ajnik/joomla-bruteforce
 sudo python3 joomla-brute.py -u http://site/ -w passwords.txt -usr username  
 ```
+
+## S1ren's Commons
+
+From her walkthrough videos, her common commands available at:
+https://sirensecurity.io/blog/common/ 
 
 # DNS enumeration
 
