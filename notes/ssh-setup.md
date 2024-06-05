@@ -1,6 +1,6 @@
 # Adding SSH Public key
 
-- This can be used to get ssh session, on target machine which is based on linux
+These steps can be used to obtain an SSH session on some Linux machines.
 
 ```bash
 # defaults are typically fine, but you can fine-tune line 38 to your liking
