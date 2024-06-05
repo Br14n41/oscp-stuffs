@@ -506,7 +506,8 @@ nikto --host $IP -ssl -evasion 1
 ```
 - `HTTPS`SSL certificate inspection, this may reveal information like subdomains, usernames…etc
 - Default credentials, Identify the CMS or service and check for default credentials and test them out.
-- Bruteforce
+
+## Bruteforce
 
 ```bash
 hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:name=^USER^&password=^PASS^&enter=Sign+in:Login name or password is incorrect" -V
@@ -517,8 +518,8 @@ hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:na
 
 - if `cgi-bin` is present then do further fuzzing and obtain files like .sh or .pl
 - Check if other services like FTP/SMB or anyothers which has upload privileges are getting reflected on web.
-- API - Fuzz further and it can reveal some sensitive information
 
+## API - Fuzz further and it can reveal some sensitive information
 ```bash
 # identifying endpoints using gobuster
 # pattern can be like {GOBUSTER}/v1 here v1 is just for example, it can be anything
@@ -527,7 +528,6 @@ gobuster dir -u http://192.168.50.16:5002 -w /usr/share/wordlists/dirb/big.txt -
 # obtaining info using curl
 curl -i http://192.168.50.16:5002/users/v1
 ```
-
 - If there is any Input field check for **Remote Code execution** or **SQL Injection**
 - Check the URL, whether we can leverage **Local or Remote File Inclusion**.
 - Also check if there’s any file upload utility(also obtain the location it’s getting reflected)
