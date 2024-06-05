@@ -22,11 +22,11 @@ git show <commit-id>
 # Connecting to RDP
 
 ```bash
-xfreerdp /u:user /p:'password' /v:IP
-xfreerdp /d:domain /u:user /p:'password' /v:IP
+xfreerdp /u:user /p:'password' /v:$target
+xfreerdp /d:domain /u:user /p:'password' /v:$target
 
 # try this option if normal login doesn't work
-xfreerdp /u:user /p:'password' /v:IP +clipboard 
+xfreerdp /u:user /p:'password' /v:$target +clipboard /cert:ignore
 ```
 
 # Adding SSH Public key
