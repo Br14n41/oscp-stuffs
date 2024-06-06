@@ -390,6 +390,9 @@ sudo swaks -t daniela@beyond.com -t marcus@beyond.com --from john@beyond.com --a
 ## LDAP Enumeration
 
 ```powershell
+# nmap
+nmap -sV --script "ldap* and not brute" $target
+
 # try on both ldap and ldaps, this is first command to run if you dont have any valid credentials
 ldapsearch -x -H ldap://IP:<port> 
 
