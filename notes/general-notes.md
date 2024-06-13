@@ -457,33 +457,85 @@ mget *
 
 # HTTP/S enumeration
 
-- View source-code and identify any hidden content. If some image looks suspicious download and try to find hidden data in it.
+Things to try:
+- View source-code and identify any hidden content. 
+- If some image looks suspicious download and try to find hidden data in it.
 - Identify the version or CMS and check for active exploits. This can be done using Nmap and Wappalyzer.
-- check /robots.txt folder
+- Check /robots.txt folder.
 - Look for the hostname and add the relevant one to `/etc/hosts` file.
 - Directory and file discovery - Obtain any hidden files which may contain juicy information
+- if `cgi-bin` is present then do further fuzzing and obtain files like .sh or .pl
+- Check if other services like FTP/SMB or anyothers which has upload privileges are getting reflected on web.
+- API - Fuzz further and it can reveal some sensitive information
+- Vulnerability Scanning using nikto: `nikto -h <url>`
+- `HTTPS`SSL certificate inspection, this may reveal information like subdomains, usernames…etc
+- Default credentials, Identify the CMS or service and check for default credentials and test them out.
 
+## Directory busting 
+
+### Basic, quick scans
 ```bash
 dirbuster
 gobuster dir -u http://example.com -w /path/to/wordlist.txt
 ffuf -w /usr/share/wordlists/dirb/big.txt -u http://example.com/FUZZ
 ```
 
-- Vulnerability Scanning using nikto: `nikto -h <url>`
-- `HTTPS`SSL certificate inspection, this may reveal information like subdomains, usernames…etc
-- Default credentials, Identify the CMS or service and check for default credentials and test them out.
-- Bruteforce
+### Wordlists
+```bash
+# the quick and dirty, might miss some items ~4700 lines
+/usr/share/wordlists/dirb/common.txt
+
+# bit more to check ~20k lines
+/usr/share/wordlists/dirb/big.txt
+
+# massive, ~220k lines
+/usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+
+# good for complete directory fuzzing
+/usr/share/wordlists/dirbuster/raft-large-directories.txt
+
+# good for file fuzzing, HTML, PHP, TXT, ASPX, etc.
+/usr/share/wordlists/dirbuster/raft-large-files.txt
+
+```
+
+### Advanced Ffuf
+```bash
+# recursion
+ffuf -w raft-large-directories.txt -u https://site.com/FUZZ -recursion-depth 4
+
+# extensions
+ffuf -w raft-large-directories.txt -u https://site.com/FUZZ -e .html,.php,.txt,.pdf
+
+# silent terminal
+ffuf -w raft-large-directories.txt -u https://site.com/FUZZ -s
+
+# tee output
+ffuf -w raft-large-directories.txt -u https://site.com/FUZZ | tee output.txt
+
+# enum subdomains
+ffuf -w /root/Desktop/wordlist.txt -u http://FUZZ.site.com -of html -o result
+
+# GET parameter name fuzzing, assumes 4242 invalid response size
+ffuf -w /path/to/paramnames.txt -u https://target/script.php?FUZZ=test_value -fs 4242
+
+# GET parameter value fuzzing, assumes wrong parameter response 401
+# Maybe try seeing /etc/passwd? Wordlist with might help /../../../../../../../etc/passwd
+ffuf -w /path/to/values.txt -u https://target/script.php?valid_name=FUZZ -fc 401
+
+# POST data fuzzing
+ffuf -w /path/to/postdata.txt -X POST -d "username=admin\&password=FUZZ" -u https://target/login.php -fc 401
+```
+
+## Bruteforce
 
 ```bash
 hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:name=^USER^&password=^PASS^&enter=Sign+in:Login name or password is incorrect" -V
 # Use https-post-form mode for https, post or get can be obtained from Burpsuite. Also do capture the response for detailed info.
-
 # Bruteforce can also be done by Burpsuite but it's slow, prefer Hydra!
 ```
 
-- if `cgi-bin` is present then do further fuzzing and obtain files like .sh or .pl
-- Check if other services like FTP/SMB or anyothers which has upload privileges are getting reflected on web.
-- API - Fuzz further and it can reveal some sensitive information
+Using Gobuster to enumerate APIs
 
 ```bash
 # identifying endpoints using gobuster
