@@ -298,6 +298,10 @@ Using Gobuster to enumerate APIs
 # pattern can be like {GOBUSTER}/v1 here v1 is just for example, it can be anything
 gobuster dir -u http://192.168.50.16:5002 -w /usr/share/wordlists/dirb/big.txt -p pattern 
 
+# example pattern file contents
+{GOBUSTER}/v1
+{GOBUSTER}/v2
+
 # obtaining info using curl
 curl -i http://192.168.50.16:5002/users/v1
 ```
