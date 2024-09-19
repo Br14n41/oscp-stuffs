@@ -75,7 +75,13 @@ useradd -u UID -g group user
 
 ## Port Scanning
 
-```bash
+Goals:
+- identify ALL open ports for enumeration
+- identify version numbers, note for later
+- quicker to identify open ports and then run scripts against those ports (Bashmap does this, https://github.com/Br14n41/bashmap) 
+
+```
+bash
 # use -Pn option if you're getting nothing in scan
 nmap -p- -sT -sV -A $IP
 nmap -p- -sC -sV $IP --open
@@ -84,7 +90,7 @@ nmap -p- --script=vuln $target
 # complete scan, may have to adjust -T4 if it has trouble keeping up
 nmap -T4 -A -p- IP -v 
 
-# automated with bashmap (https://github.com/Br14n41/bashmap)
+# automated with bashmap, echo IP into file first
 ./bashmap.sh ips.txt
 
 # NSE
@@ -103,13 +109,14 @@ Test-NetConnection -Port <port> IP
 
 ## FTP enumeration
 
-Checklist:
+Initial checklist:
 
 - Anonymous login?
 - ftp:ftp?
 - hydra common ftp passwords?
 - wget --mirror, or browser access?
 - version vulnerabilities?
+- Analyze files discovered, using tools like file, exiftool, strings, etc.
 
 ```bash
 ftp IP
@@ -134,11 +141,12 @@ hydra -v -C /usr/share/seclists/seclists-master/Passwords/Default-Credentials/ft
 
 ## SSH enumeration
 
-Checklist:
+Initial checklist:
 
 - version vulnerabilities?
 - weak credentials? 
 - hydra SSH cred list
+- most of the time will need creds first
 
 ```bash
 # Login
@@ -166,6 +174,7 @@ Checklist:
 - smbclient/smbmap
 - anonymous login?
 - vulnerable version?
+- analyze files found with tools like file, exiftool, strings
 
 ```bash
 # Automated
@@ -250,7 +259,7 @@ ffuf -w /usr/share/wordlists/dirb/big.txt -u http://example.com/FUZZ
 
 ### Local wordlists (Kali)
 
-Some handy wordlists local to Kali.
+Some handy wordlists local to Kali or via Seclists.
 
 ```bash
 # the quick and dirty, might miss some items ~4700 lines
@@ -305,7 +314,7 @@ ffuf -w /path/to/postdata.txt -X POST -d "username=admin\&password=FUZZ" -u http
 ```bash
 hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:name=^USER^&password=^PASS^&enter=Sign+in:Login name or password is incorrect" -V
 # Use https-post-form mode for https, post or get can be obtained from Burpsuite. Also do capture the response for detailed info.
-# Bruteforce can also be done by Burpsuite but it's slow, prefer Hydra!
+# Bruteforce can also be done by Burp but it's slow, Hydra rules here!
 ```
 
 Using Gobuster to enumerate APIs
@@ -354,7 +363,7 @@ wpscan --url "target" --verbose
 wpscan --url "target" --enumerate vp,u,vt,tt --follow-redirection --verbose --log target.log
 
 # Add Wpscan API to get the details of vulnerabilties.
-wpscan --url http://alvida-eatery.org/ --api-token NjnoSGZkuWDve0fDjmmnUNb1ZnkRw6J2J1FvBsVLPkA 
+wpscan --url http://alvida-eatery.org/ --api-token <TOKEN> 
 
 # Accessing Wordpress shell
 http://<DOMAIN>/retro/wp-admin/theme-editor.php?file=404.php&theme=90s-retro
