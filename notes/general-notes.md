@@ -81,7 +81,7 @@ nmap -p- -sT -sV -A $IP
 nmap -p- -sC -sV $IP --open
 nmap -p- --script=vuln $target
 
-# complete scan
+# complete scan, may have to adjust -T4 if it has trouble keeping up
 nmap -T4 -A -p- IP -v 
 
 # automated with bashmap (https://github.com/Br14n41/bashmap)
@@ -103,10 +103,17 @@ Test-NetConnection -Port <port> IP
 
 ## FTP enumeration
 
+Checklist:
+
+- Anonymous login?
+- ftp:ftp?
+- hydra common ftp passwords?
+- wget --mirror, or browser access?
+- version vulnerabilities?
+
 ```bash
 ftp IP
 # login if you have relevant creds or based on nmpa scan find out whether this has anonymous login or not, then loginwith Anonymous:password
-# don't forget to try ftp:ftp
 
 put <file> # uploading file
 get <file> # downloading file
@@ -126,6 +133,12 @@ hydra -v -C /usr/share/seclists/seclists-master/Passwords/Default-Credentials/ft
 ```
 
 ## SSH enumeration
+
+Checklist:
+
+- version vulnerabilities?
+- weak credentials? 
+- hydra SSH cred list
 
 ```bash
 # Login
@@ -147,9 +160,16 @@ hydra -l user -P passwords.txt IP ssh # '-L' for usernames list, '-l' for userna
 
 ## SMB enumeration
 
+Checklist:
+
+- enum4linux-ng/enum4linux
+- smbclient/smbmap
+- anonymous login?
+- vulnerable version?
+
 ```bash
 # Automated
-enum4linux -a IP
+enum4linux-ng -A IP
 # IP or range can be provided
 sudo nbtscan -r IP
 
@@ -206,19 +226,17 @@ mget *
 
 ## HTTP/S enumeration
 
-Things to try:
-- View source-code and identify any hidden content. 
-- If some image looks suspicious download and try to find hidden data in it.
-- Identify the version or CMS and check for active exploits. This can be done using Nmap and Wappalyzer.
-- Check /robots.txt folder.
-- Look for the hostname and add the relevant one to `/etc/hosts` file.
-- Directory and file discovery - Obtain any hidden files which may contain juicy information
-- if `cgi-bin` is present then do further fuzzing and obtain files like .sh or .pl
-- Check if other services like FTP/SMB or anyothers which has upload privileges are getting reflected on web.
-- API - Fuzz further and it can reveal some sensitive information
-- Vulnerability Scanning using nikto: `nikto -h <url>`
-- `HTTPS`SSL certificate inspection, this may reveal information like subdomains, usernames…etc
-- Default credentials, Identify the CMS or service and check for default credentials and test them out.
+Checklist:
+
+- View source-code and identify any hidden content. (Browser, Burp Suite)
+- Fuzz parameters for RFI/LFI, as well as injection opportunities (SQL, XSS, etc.) 
+- Any tokens we can examine? 
+- Check for vulnerable versions (Wappalyzer, Nmap, Nikto).
+- Check for any upload privileges.
+- /robots.txt file?
+- Directory/file busting, API fuzzing (Dirb, Dirbuster, Gobuster*, Ffuf)
+- Certificate inspection, this may reveal information like subdomains, usernames… etc
+- Weak credentials? 
 
 ### Directory busting 
 
@@ -226,7 +244,7 @@ Basic, quick scans.
 
 ```bash
 dirbuster
-gobuster dir -u http://example.com -w /path/to/wordlist.txt
+gobuster dir -u http://example.com -w /usr/share/seclists/Discovery/Web-Content/common.txt
 ffuf -w /usr/share/wordlists/dirb/big.txt -u http://example.com/FUZZ
 ```
 
@@ -236,7 +254,7 @@ Some handy wordlists local to Kali.
 
 ```bash
 # the quick and dirty, might miss some items ~4700 lines
-/usr/share/wordlists/dirb/common.txt
+/usr/share/seclists/Discovery/Web-Content/common.txt
 
 # bit more to check ~20k lines
 /usr/share/wordlists/dirb/big.txt
@@ -293,6 +311,7 @@ hydra -L users.txt -P password.txt <IP or domain> http-{post/get}-form "/path:na
 Using Gobuster to enumerate APIs
 
 ### API - Fuzz further and it can reveal some sensitive information
+
 ```bash
 # identifying endpoints using gobuster
 # pattern can be like {GOBUSTER}/v1 here v1 is just for example, it can be anything
@@ -413,6 +432,8 @@ sudo swaks -t daniela@beyond.com -t marcus@beyond.com --from john@beyond.com --a
 
 ## LDAP Enumeration
 
+Common tools: ldapsearch, nmap
+
 ```powershell
 # nmap
 nmap -sV --script "ldap* and not brute" $target
@@ -444,6 +465,17 @@ python3 windapsearch.py --dc-ip <IP address> -u <username> -p <password> --da
 # for privileged users
 python3 windapsearch.py --dc-ip <IP address> -u <username> -p <password> --privileged-users
 ```
+
+## Kerberos Enumeration
+
+Common tools: Impacket, Kerbrute (https://github.com/ropnop/kerbrute)
+
+Checklist:
+
+- blind? Try Kerbrute with SECLISTS common names list. If any names found try AS-REP Roasting
+- know any usernames? Check if they have Pre-Auth disabled (AS-REP Roasting)
+- know any username/passwords? Check for service accounts that have weak passwords (Kerberoasting)
+
 
 ## NFS Enumeration
 
