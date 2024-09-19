@@ -333,9 +333,6 @@ gobuster dir -u http://192.168.50.16:5002 -w /usr/share/wordlists/dirb/big.txt -
 # obtaining info using curl
 curl -i http://192.168.50.16:5002/users/v1
 ```
-- If there is any Input field check for **Remote Code execution** or **SQL Injection**
-- Check the URL, whether we can leverage **Local or Remote File Inclusion**.
-- Also check if there’s any file upload utility(also obtain the location it’s getting reflected)
 
 ### GitHub
 
